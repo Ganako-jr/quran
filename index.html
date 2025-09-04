@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quran App</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- Google Fonts for Arabic font -->
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* Base styles */
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-light: #818cf8;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    /* Dark mode */
+    .dark {
+      color-scheme: dark;
+    }
+    
+    .dark body {
+      background-color: #111827;
+      color: #f9fafb;
+    }
+    
+    /* Arabic font */
+    .font-arabic {
+      font-family: 'Amiri', serif;
+    }
+    
+    /* Animations */
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    /* Transitions */
+    .transition-colors {
+      transition-property: background-color, border-color, color, fill, stroke;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 150ms;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    .dark ::-webkit-scrollbar-track {
+      background: #374151;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    /* Utilities */
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      transition: background-color 0.2s;
+    }
+    
+    .icon-button:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .icon-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Introduction animation */
+    .intro-animation {
+      animation: fadeIn 1.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      z-index: 100;
+      transition: transform 0.3s, opacity 0.3s;
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .dark .toast {
+      background-color: #374151;
+      color: #f9fafb;
+    }
+    
+    /* Verse card styles */
+    .verse-card {
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .verse-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .dark .verse-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Mobile navigation */
+    .mobile-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      border-top: 1px solid #e5e7eb;
+      padding: 0.5rem;
+      display: flex;
+      justify-content: space-around;
+      z-index: 40;
+    }
+    
+    .dark .mobile-nav {
+      background-color: #1f2937;
+      border-color: #374151;
+    }
+    
+    /* Improved dark mode colors for better visibility */
+    .dark .text-gray-600 {
+      color: #d1d5db !important; /* Light gray for better contrast */
+    }
+    
+    .dark .text-gray-700 {
+      color: #e5e7eb !important; /* Very light gray for better contrast */
+    }
+    
+    .dark .text-gray-500 {
+      color: #9ca3af !important; /* Medium gray that's still visible */
+    }
+    
+    .dark .text-gray-400 {
+      color: #d1d5db !important; /* Light gray for better contrast */
+    }
+    
+    /* Make sure Arabic text is very visible in dark mode */
+    .dark .font-arabic {
+      color: #f3f4f6 !important; /* Almost white */
+    }
+    
+    /* Improve visibility of borders in dark mode */
+    .dark .border-gray-700 {
+      border-color: #4b5563 !important; /* Make borders more visible */
+    }
+    
+    /* Increase contrast for primary colors in dark mode */
+    .dark .text-primary {
+      color: #818cf8 !important; /* Lighter primary color for visibility */
+    }
+    
+    .dark .bg-primary {
+      background-color: #4f46e5 !important; /* Keep primary background bright */
+    }
+    
+    /* Improved verse text contrast */
+    .dark .text-gray-300 {
+      color: #f9fafb !important; /* Almost white for maximum readability */
+    }
+    
+    @media (min-width: 768px) {
+      .mobile-nav {
+        display: none;
+      }
+    }
+.btn-ctn {
+background: black;
+color: white;
+}
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <!-- Main application container -->
+  <div id="app" class="min-h-screen flex flex-col">
+    <!-- Introduction Screen -->
+    <div id="intro-screen" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-gray-900 z-50">
+      <div class="text-center p-6 max-w-md mx-auto intro-animation">
+        <h1 class="text-4xl font-bold text-primary mb-4">Quran App</h1>
+        <p class="font-arabic text-3xl mb-6">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+        <p class="text-gray-600 dark:text-gray-300 mb-8">A comprehensive Quran application with translations, tafsir, and audio recitation</p>
+        <button id="continue-btn" class="btn-ctn">
+          Continue to App
+        </button>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header id="header" class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm hidden">
+      <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center">
+          <button id="sidebar-toggle" class="mr-4 icon-button md:hidden text-gray-600 dark:text-gray-300">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="font-semibold text-xl text-primary dark:text-primary-light flex items-center">
+            <i class="fas fa-book-open mr-2"></i>
+            <span>Quran App</span>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <button id="surah-dropdown-toggle" class="hidden md:flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors">
+            <span id="current-surah-name">Surah</span>
+            <i class="fas fa-chevron-down ml-2 text-sm"></i>
+          </button>
+          
+          <button id="search-toggle" class="icon-button text-gray-600 dark:text-gray-300">
+            <i class="fas fa-search"></i>
+          </button>
+          
+          <a href="#bookmarks" id="bookmarks-link" class="icon-button text-gray-600 dark:text-gray-300">
+            <i class="fas fa-bookmark"></i>
+          </a>
+          
+          <button id="dark-mode-toggle" class="icon-button text-gray-600 dark:text-gray-300">
+            <i class="fas fa-sun dark:hidden"></i>
+            <i class="fas fa-moon hidden dark:inline-block"></i>
+          </button>
+          
+          <button id="last-read" class="hidden md:flex items-center px-3 py-2 text-sm bg-primary hover:bg-primary-dark text-white rounded-lg transition-colors">
+            <i class="fas fa-history mr-1"></i>
+            <span>Continue Reading</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Sidebar -->
+    <div id="mobile-sidebar" class="fixed inset-0 z-40 hidden">
+      <div class="fixed inset-0 bg-black bg-opacity-50" id="sidebar-backdrop"></div>
+      
+      <div class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg overflow-y-auto">
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div class="flex items-center">
+            <i class="fas fa-book-open text-primary dark:text-primary-light mr-2"></i>
+            <span class="font-semibold text-primary dark:text-primary-light">Quran App</span>
+          </div>
+          <button id="close-sidebar" class="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="p-4">
+          <div class="mb-6 space-y-2">
+            <h3 class="text-sm uppercase text-gray-500 dark:text-gray-300 font-medium">Navigation</h3>
+            <button id="mobile-search" class="w-full flex items-center justify-start p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <i class="fas fa-search mr-3"></i>
+              <span>Search Quran</span>
+            </button>
+            <a href="#bookmarks" class="w-full flex items-center justify-start p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+              <i class="fas fa-bookmark mr-3"></i>
+              <span>Bookmarks</span>
+            </a>
+            <button id="mobile-last-read" class="w-full flex items-center justify-start p-2 rounded-lg hover:bg-black-100 dark:hover:bg-gray-700 text-primary dark:text-primary-light">
+              <i class="fas fa-history mr-3"></i>
+              <span>Continue Reading</span>
+            </button>
+          </div>
+          
+          <div class="space-y-2">
+            <h3 class="text-sm uppercase text-gray-500 dark:text-gray-300 font-medium">Surahs</h3>
+            <div class="mb-2">
+              <input type="text" id="mobile-surah-search" placeholder="Search surah..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+            </div>
+            <div class="max-h-[50vh] overflow-y-auto pr-2" id="mobile-surah-list">
+              <!-- Surahs will be inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Surah Dropdown -->
+    <div id="surah-dropdown" class="fixed z-30 mt-2 w-72 rounded-md shadow-lg hidden">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xs py-1 max-h-96 overflow-y-auto">
+        <div class="px-3 py-2">
+          <input type="text" id="surah-search" placeholder="Search surah..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+        </div>
+        <div id="surah-list" class="mt-1">
+          <!-- Surahs will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Interface -->
+    <div id="search-interface" class="container mx-auto px-4 py-6 hidden">
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 mb-6">
+        <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search the Quran</label>
+            <input 
+              type="text" 
+              id="search-input"
+              placeholder="Enter search term (min 3 characters)" 
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+          </div>
+          <div>
+            <button 
+              id="search-button"
+              class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg flex items-center">
+              <i class="fas fa-search mr-1"></i>
+              <span>Search</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div id="search-results-container" class="mt-6 overflow-hidden hidden">
+          <h3 id="search-results-count" class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">
+            0 results found
+          </h3>
+          
+          <div id="search-loading" class="flex justify-center py-8 hidden">
+            <div class="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          
+          <div id="search-results" class="space-y-4">
+            <!-- Search results will appear here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 container mx-auto px-4 py-6 hidden">
+      <!-- Surah Header -->
+      <div id="surah-header" class="mb-6 text-center">
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+          <h1 id="surah-arabic-name" class="text-3xl font-arabic mb-2"></h1>
+          <h2 id="surah-english-name" class="text-xl text-gray-700 dark:text-gray-300 mb-4"></h2>
+          <div class="italic text-gray-600 dark:text-gray-300 text-sm">
+            <p id="bismillah" class="font-arabic text-xl leading-10 mb-2">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Verse List -->
+      <div id="verse-list" class="space-y-4 pb-20">
+        <!-- Verses will be loaded here -->
+      </div>
+      
+      <!-- Loading Indicator -->
+      <div id="loading-indicator" class="flex flex-col items-center justify-center py-16">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary dark:border-primary-light mb-4"></div>
+        <p class="text-gray-600 dark:text-gray-300">Loading Surah...</p>
+      </div>
+    </main>
+
+    <!-- Bookmarks Page -->
+    <div id="bookmarks-page" class="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 hidden">
+      <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center">
+            <button id="back-to-home" class="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mr-2">
+              <i class="fas fa-chevron-left mr-1"></i>
+              <span>Back</span>
+            </button>
+            <h1 class="text-xl font-semibold text-primary dark:text-primary-light">
+              <i class="fas fa-bookmark mr-2"></i>
+              Bookmarks
+            </h1>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-6">
+        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="font-semibold text-lg flex items-center justify-between text-gray-800 dark:text-gray-200">
+              <span id="bookmarks-count">Your Bookmarked Verses (0)</span>
+            </h2>
+          </div>
+          
+          <div id="bookmarks-content" class="p-4">
+            <!-- Bookmarks will be loaded here -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Surah Navigation -->
+    <div id="surah-navigation" class="fixed bottom-0 inset-x-0 py-3 px-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between md:px-6 shadow-[0_-1px_5px_rgba(0,0,0,0.05)] dark:shadow-[0_-1px_5px_rgba(0,0,0,0.2)] hidden">
+      <button 
+        id="prev-surah"
+        class="px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">
+        <i class="fas fa-chevron-left mr-1"></i>
+        <span class="hidden sm:inline">Previous Surah</span>
+      </button>
+      
+      <div class="flex items-center">
+        <select 
+          id="surah-select"
+          class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-3 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary-light">
+          <!-- Surah options will be added here -->
+        </select>
+      </div>
+      
+      <button 
+        id="next-surah"
+        class="px-4 py-2 rounded-lg flex items-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">
+        <span class="hidden sm:inline">Next Surah</span>
+        <i class="fas fa-chevron-right ml-1"></i>
+      </button>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <div class="mr-3">
+        <i class="fas fa-check-circle text-green-500"></i>
+      </div>
+      <div>
+        <div id="toast-title" class="font-medium"></div>
+        <div id="toast-message" class="text-sm text-gray-600 dark:text-gray-300"></div>
+      </div>
+    </div>
+
+    <!-- Main Audio Element -->
+    <audio id="main-audio-player" class="hidden" controls></audio>
+  </div>
+
+  <script>
+    // Application State
+    const state = {
+      surahs: [],
+      verses: [],
+      bookmarks: JSON.parse(localStorage.getItem('bookmarks') || '[]'),
+      lastRead: JSON.parse(localStorage.getItem('lastRead') || 'null'),
+      currentSurah: 1,
+      loading: false,
+      audioPlaying: null,
+      tafsirShown: {},
+      expandedAyahs: {},
+      darkMode: localStorage.getItem('darkMode') === 'true' || 
+        (localStorage.getItem('darkMode') === null && 
+         window.matchMedia('(prefers-color-scheme: dark)').matches),
+      introShown: localStorage.getItem('introShown') === 'true',
+      isSearching: false,
+      filteredSurahs: [],
+      searchQuery: '',
+      searchResults: [],
+      searchLoading: false
+    };
+
+    // API Constants
+    const API_BASE_URL = 'https://api.alquran.cloud/v1';
+    const AUDIO_BASE_URL = 'https://cdn.islamic.network/quran/audio/128';
+    const TRANSLATIONS = [
+      { id: 'en.asad', name: 'Muhammad Asad' },
+      { id: 'en.pickthall', name: 'Pickthall' },
+      { id: 'en.yusufali', name: 'Yusuf Ali' },
+      { id: 'en.sahih', name: 'Sahih International' }
+    ];
+    const TAFSIRS = [
+      { id: 'en.ibn-kathir', name: 'Ibn Kathir' },
+      { id: 'en.jalalayn', name: 'Al-Jalalayn' }
+    ];
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const continueBtn = document.getElementById('continue-btn');
+    const header = document.getElementById('header');
+    const mainContent = document.getElementById('main-content');
+    const bookmarksPage = document.getElementById('bookmarks-page');
+    const searchInterface = document.getElementById('search-interface');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const closeSidebar = document.getElementById('close-sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const surahDropdownToggle = document.getElementById('surah-dropdown-toggle');
+    const surahDropdown = document.getElementById('surah-dropdown');
+    const searchToggle = document.getElementById('search-toggle');
+    const mobileSearch = document.getElementById('mobile-search');
+    const lastReadBtn = document.getElementById('last-read');
+    const mobileLastReadBtn = document.getElementById('mobile-last-read');
+    const backToHomeBtn = document.getElementById('back-to-home');
+    const surahHeader = document.getElementById('surah-header');
+    const surahArabicName = document.getElementById('surah-arabic-name');
+    const surahEnglishName = document.getElementById('surah-english-name');
+    const bismillah = document.getElementById('bismillah');
+    const verseList = document.getElementById('verse-list');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const surahNavigation = document.getElementById('surah-navigation');
+    const prevSurahBtn = document.getElementById('prev-surah');
+    const nextSurahBtn = document.getElementById('next-surah');
+    const surahSelect = document.getElementById('surah-select');
+    const currentSurahName = document.getElementById('current-surah-name');
+    const surahSearch = document.getElementById('surah-search');
+    const surahList = document.getElementById('surah-list');
+    const mobileSurahSearch = document.getElementById('mobile-surah-search');
+    const mobileSurahList = document.getElementById('mobile-surah-list');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    const searchResultsContainer = document.getElementById('search-results-container');
+    const searchResultsCount = document.getElementById('search-results-count');
+    const searchLoading = document.getElementById('search-loading');
+    const searchResults = document.getElementById('search-results');
+    const bookmarksContent = document.getElementById('bookmarks-content');
+    const bookmarksCount = document.getElementById('bookmarks-count');
+    const toast = document.getElementById('toast');
+    const toastTitle = document.getElementById('toast-title');
+    const toastMessage = document.getElementById('toast-message');
+    const mainAudioPlayer = document.getElementById('main-audio-player');
+
+    // Helper Functions
+    function showToast(title, message = '') {
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function setDarkMode(enabled) {
+      state.darkMode = enabled;
+      localStorage.setItem('darkMode', String(enabled));
+      
+      if (enabled) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function navigateToSurah(surahNumber) {
+      window.location.hash = '';
+      fetchSurah(surahNumber);
+      saveLastRead(surahNumber);
+      showView('main');
+    }
+
+    function showView(view) {
+      // Hide all views
+      mainContent.classList.add('hidden');
+      bookmarksPage.classList.add('hidden');
+      searchInterface.classList.add('hidden');
+      surahNavigation.classList.add('hidden');
+      
+      // Show the selected view
+      if (view === 'main') {
+        mainContent.classList.remove('hidden');
+        surahNavigation.classList.remove('hidden');
+      } else if (view === 'bookmarks') {
+        bookmarksPage.classList.remove('hidden');
+      } else if (view === 'search') {
+        searchInterface.classList.remove('hidden');
+      }
+    }
+
+    function updateSurahDropdown() {
+      // Filter surahs based on search
+      const filteredSurahs = state.searchQuery.length > 0 
+        ? state.surahs.filter(surah => 
+            surah.englishName.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+            surah.englishNameTranslation.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+            surah.number.toString().includes(state.searchQuery)
+          )
+        : state.surahs;
+      
+      // Update state
+      state.filteredSurahs = filteredSurahs;
+      
+      // Clear existing options
+      surahList.innerHTML = '';
+      mobileSurahList.innerHTML = '';
+      
+      // Add filtered surahs to dropdown
+      filteredSurahs.forEach(surah => {
+        // For desktop dropdown
+        const item = document.createElement('button');
+        item.className = `w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between ${
+          state.currentSurah === surah.number ? 'bg-gray-100 dark:bg-gray-700' : ''
+        }`;
+        item.innerHTML = `
+          <div class="flex items-center">
+            <span class="w-7 h-7 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-full text-primary dark:text-primary-light text-sm mr-2">
+              ${surah.number}
+            </span>
+            <div class="flex flex-col">
+              <span class="font-medium text-sm">${surah.englishName}</span>
+              <span class="text-xs text-gray-500 dark:text-gray-300">${surah.englishNameTranslation}</span>
+            </div>
+          </div>
+          <span class="font-arabic text-base">${surah.name}</span>
+        `;
+        item.addEventListener('click', () => {
+          navigateToSurah(surah.number);
+          surahDropdown.classList.add('hidden');
+        });
+        surahList.appendChild(item);
+        
+        // For mobile sidebar
+        const mobileItem = document.createElement('li');
+        mobileItem.innerHTML = `
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between ${
+            state.currentSurah === surah.number ? 'bg-gray-100 dark:bg-gray-700' : ''
+          }">
+            <div class="flex items-center">
+              <span class="w-7 h-7 flex items-center justify-center bg-gray-100 dark:bg-gray-700 rounded-full text-primary dark:text-primary-light text-sm mr-2">
+                ${surah.number}
+              </span>
+              <div class="flex flex-col">
+                <span class="font-medium text-sm">${surah.englishName}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-300">${surah.englishNameTranslation}</span>
+              </div>
+            </div>
+            <span class="font-arabic text-base">${surah.name}</span>
+          </button>
+        `;
+        mobileItem.querySelector('button').addEventListener('click', () => {
+          navigateToSurah(surah.number);
+          mobileSidebar.classList.add('hidden');
+        });
+        mobileSurahList.appendChild(mobileItem);
+      });
+      
+      // Update surah select dropdown
+      if (state.surahs.length > 0 && surahSelect.children.length === 0) {
+        state.surahs.forEach(surah => {
+          const option = document.createElement('option');
+          option.value = surah.number;
+          option.textContent = `${surah.number}. ${surah.englishName}`;
+          surahSelect.appendChild(option);
+        });
+      }
+      
+      // Update current surah name
+      const currentSurah = state.surahs.find(s => s.number === state.currentSurah);
+      if (currentSurah) {
+        currentSurahName.textContent = currentSurah.englishName;
+        surahSelect.value = state.currentSurah;
+      }
+    }
+
+    function toggleBookmark(verseId, surahId) {
+      const surahNumber = surahId || state.currentSurah;
+      
+      const bookmarkIndex = state.bookmarks.findIndex(b => 
+        b.surah === surahNumber && b.verse === verseId
+      );
+      
+      if (bookmarkIndex === -1) {
+        // Add bookmark
+        state.bookmarks.push({
+          surah: surahNumber,
+          verse: verseId,
+          timestamp: new Date().toISOString()
+        });
+        showToast('Bookmark added', 'Verse bookmarked successfully');
+      } else {
+        // Remove bookmark
+        state.bookmarks.splice(bookmarkIndex, 1);
+        showToast('Bookmark removed');
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+      
+      // Update UI if on verse page
+      if (!state.isSearching) {
+        renderVerses();
+      }
+      
+      // Update bookmarks page if visible
+      if (window.location.hash === '#bookmarks') {
+        renderBookmarks();
+      }
+    }
+
+    function saveLastRead(surahNumber, ayah = 1) {
+      const lastReadData = {
+        surah: surahNumber,
+        ayah: ayah,
+        timestamp: new Date().toISOString()
+      };
+      
+      state.lastRead = lastReadData;
+      localStorage.setItem('lastRead', JSON.stringify(lastReadData));
+      
+      // Update last read buttons visibility
+      updateLastReadButtons();
+    }
+
+    function updateLastReadButtons() {
+      if (state.lastRead) {
+        lastReadBtn.classList.remove('hidden');
+        mobileLastReadBtn.disabled = false;
+        mobileLastReadBtn.classList.remove('opacity-50');
+      } else {
+        lastReadBtn.classList.add('hidden');
+        mobileLastReadBtn.disabled = true;
+        mobileLastReadBtn.classList.add('opacity-50');
+      }
+    }
+
+    // Fixed - Added pauseAudio function
+    function pauseAudio() {
+      if (state.audioPlaying) {
+        mainAudioPlayer.pause();
+        state.audioPlaying = null;
+        renderVerses();
+      }
+    }
+
+    function playAudio(verse) {
+      try {
+        if (state.audioPlaying) {
+          pauseAudio();
+        }
+
+        const surah = verse.meta.surah.toString().padStart(3, "0");
+        const ayah = verse.number.toString().padStart(3, "0");
+
+        const audioSrc = `https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps/${surah}${ayah}.mp3`;
+
+        mainAudioPlayer.src = audioSrc;
+
+        mainAudioPlayer.onended = () => {
+          state.audioPlaying = null;
+          renderVerses();
+        };
+
+        mainAudioPlayer.oncanplay = () => {
+          state.audioPlaying = {
+            verse: verse.number,
+            audio: mainAudioPlayer
+          };
+
+          const playPromise = mainAudioPlayer.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(error => {
+              console.error("Audio play error:", error);
+              showToast("Audio Error", "Click anywhere to enable audio.");
+              state.audioPlaying = null;
+              renderVerses();
+            });
+          }
+
+          renderVerses();
+        };
+
+        mainAudioPlayer.onerror = () => {
+          console.error("Audio loading error");
+          showToast("Audio Error", "Could not load audio for this verse");
+          state.audioPlaying = null;
+          renderVerses();
+        };
+
+      } catch (error) {
+        console.error("Error setting up audio:", error);
+        showToast("Audio Error", "There was a problem playing the audio");
+      }
+    }
+
+    // Fixed - Added toggleTafsir function
+    function toggleTafsir(surahNumber, ayahNumber) {
+      const tafsirKey = `${surahNumber}-${ayahNumber}`;
+      
+      // Toggle the state
+      state.expandedAyahs[tafsirKey] = !state.expandedAyahs[tafsirKey];
+      
+      // If tafsir is now shown and we don't have the content yet, fetch it
+      if (state.expandedAyahs[tafsirKey] && !state.tafsirShown[tafsirKey]) {
+        getTafsir(surahNumber, ayahNumber);
+      } else {
+        // Just update UI
+        renderVerses();
+      }
+    }
+
+    function shareVerse(verse) {
+      const text = `${verse.arabic}\n\n${verse.translation}\n\nSurah ${verse.meta.englishName} (${verse.number})`;
+      
+      // Try to use native sharing if available
+      if (navigator.share) {
+        navigator.share({
+          title: `Quran - Surah ${verse.meta.englishName} (${verse.meta.surahName})`,
+          text: text,
+          url: window.location.href
+        })
+        .then(() => {
+          showToast('Verse shared successfully');
+        })
+        .catch(error => {
+          console.error('Share failed:', error);
+          // Fallback to clipboard
+          copyToClipboard(text);
+        });
+      } else {
+        // Fallback to clipboard
+        copyToClipboard(text);
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          showToast('Verse copied to clipboard', 'You can now paste it anywhere');
+        })
+        .catch(err => {
+          console.error('Failed to copy:', err);
+          showToast('Sharing failed', 'Could not copy to clipboard');
+        });
+    }
+
+    // API Functions
+    async function fetchSurahs() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/surah`);
+        const data = await response.json();
+        
+        if (data.code === 200 && data.status === 'OK') {
+          state.surahs = data.data;
+          updateSurahDropdown();
+        }
+      } catch (error) {
+        console.error('Error fetching surahs:', error);
+        showToast('Error', 'Failed to load surahs list');
+      }
+    }
+
+    async function fetchSurah(surahNumber) {
+      state.loading = true;
+      state.currentSurah = surahNumber;
+      
+      // Update navigation buttons state
+      prevSurahBtn.disabled = surahNumber <= 1;
+      nextSurahBtn.disabled = surahNumber >= 114;
+      
+      // Show loading and hide content
+      loadingIndicator.classList.remove('hidden');
+      verseList.classList.add('hidden');
+      surahHeader.classList.add('hidden');
+      
+      try {
+        const [arabicResponse, translationResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/surah/${surahNumber}`),
+          fetch(`${API_BASE_URL}/surah/${surahNumber}/en.asad`)
+        ]);
+        
+        const arabicData = await arabicResponse.json();
+        const translationData = await translationResponse.json();
+        
+        if (arabicData.code === 200 && translationData.code === 200) {
+          const arabicAyahs = arabicData.data.ayahs;
+          const translationAyahs = translationData.data.ayahs;
+          
+          const formattedVerses = arabicAyahs.map((ayah, index) => ({
+            number: ayah.numberInSurah,
+            arabic: ayah.text,
+            translation: translationAyahs[index].text,
+            audio: ayah.audio,
+            meta: {
+              juz: ayah.juz,
+              page: ayah.page,
+              surah: arabicData.data.number,
+              surahName: arabicData.data.name,
+              englishName: arabicData.data.englishName
+            }
+          }));
+          
+          state.verses = formattedVerses;
+          
+          // Update header
+          surahArabicName.textContent = arabicData.data.name;
+          surahEnglishName.textContent = `${arabicData.data.englishName} (${arabicData.data.englishNameTranslation})`;
+          
+          // Show/hide bismillah for Surah At-Tawbah (9)
+          if (surahNumber === 9) {
+            bismillah.classList.add('hidden');
+          } else {
+            bismillah.classList.remove('hidden');
+          }
+          
+          // Render verses
+          renderVerses();
+          
+          // Update dropdown
+          updateSurahDropdown();
+          
+          // Show header
+          surahHeader.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error fetching surah:', error);
+        showToast('Error', 'Failed to load surah');
+      } finally {
+        state.loading = false;
+        loadingIndicator.classList.add('hidden');
+      }
+    }
+
+    async function searchQuran(query) {
+      if (query.length < 3) {
+        showToast('Enter at least 3 characters');
+        return;
+      }
+      
+      state.searchLoading = true;
+      searchLoading.classList.remove('hidden');
+      searchResults.innerHTML = '';
+      searchResultsContainer.classList.remove('hidden');
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/search/${query}/en.asad`);
+        const data = await response.json();
+        
+        if (data.code === 200 && data.status === 'OK') {
+          state.searchResults = data.data.matches || [];
+          searchResultsCount.textContent = `${state.searchResults.length} results found`;
+          
+          // Render search results
+          renderSearchResults(query);
+        }
+      } catch (error) {
+        console.error('Error searching Quran:', error);
+        showToast('Error', 'Failed to search Quran');
+      } finally {
+        state.searchLoading = false;
+        searchLoading.classList.add('hidden');
+      }
+    }
+
+    async function getTafsir(surahNumber, ayahNumber) {
+      const tafsirKey = `${surahNumber}-${ayahNumber}`;
+      
+      try {
+        // Use a different API that provides English tafsir text
+        const response = await fetch(`https://quranenc.com/api/v1/translation/aya/english_saheeh/${surahNumber}/${ayahNumber}`);
+        const data = await response.json();
+        
+        if (data && data.result) {
+          // Store the English tafsir text
+          state.tafsirShown[tafsirKey] = data.result.footnotes || data.result.translation || "Tafsir not available for this verse.";
+        } else {
+          state.tafsirShown[tafsirKey] = "Tafsir not available for this verse.";
+        }
+      } catch (error) {
+        console.error('Error fetching tafsir:', error);
+        
+        // Fallback to another API if the first one fails
+        try {
+          const fallbackResponse = await fetch(`https://api.quran.com/api/v4/quran/tafsirs/169?verse_key=${surahNumber}:${ayahNumber}`);
+          const fallbackData = await fallbackResponse.json();
+          
+          if (fallbackData && fallbackData.tafsirs && fallbackData.tafsirs.length > 0) {
+            state.tafsirShown[tafsirKey] = fallbackData.tafsirs[0].text;
+          } else {
+            state.tafsirShown[tafsirKey] = "Tafsir not available for this verse.";
+          }
+        } catch (fallbackError) {
+          console.error('Fallback tafsir also failed:', fallbackError);
+          state.tafsirShown[tafsirKey] = "Error loading tafsir. Please try again later.";
+        }
+      } finally {
+        renderVerses();
+      }
+    }
+
+    // Render Functions
+    function renderVerses() {
+      if (state.verses.length === 0) return;
+      
+      verseList.innerHTML = '';
+      
+      state.verses.forEach(verse => {
+        const isBookmarked = state.bookmarks.some(
+          b => b.surah === state.currentSurah && b.verse === verse.number
+        );
+        const isPlaying = state.audioPlaying?.verse === verse.number;
+        const tafsirKey = `${verse.meta.surah}-${verse.number}`;
+        const showTafsir = state.expandedAyahs[tafsirKey];
+        const tafsirText = state.tafsirShown[tafsirKey];
+        
+        const verseElement = document.createElement('div');
+        verseElement.className = 'bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 verse-card';
+        verseElement.innerHTML = `
+          <!-- Verse Header -->
+          <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center">
+              <span class="w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full text-sm mr-2">
+                ${verse.number}
+              </span>
+              <span class="text-sm text-gray-500 dark:text-gray-300">
+                Juz ${verse.meta.juz} • Page ${verse.meta.page}
+              </span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <!-- Bookmark Button -->
+              <button class="bookmark-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
+                <i class="fas fa-bookmark ${isBookmarked ? 'text-yellow-400' : 'text-gray-400 dark:text-gray-300'}"></i>
+              </button>
+              
+              <!-- Audio Play Button -->
+              <button class="audio-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 ${
+                isPlaying ? 'text-primary dark:text-primary-light' : 'text-gray-600 dark:text-gray-300'
+              }">
+                <i class="fas ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>
+              </button>
+              
+              <!-- Share Button -->
+              <button class="share-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300">
+                <i class="fas fa-share-alt"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Arabic Text -->
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <p class="font-arabic text-2xl leading-loose text-right" dir="rtl">${verse.arabic}</p>
+          </div>
+          
+          <!-- Translation -->
+          <div class="p-4">
+            <p class="text-gray-700 dark:text-gray-200 leading-relaxed">${verse.translation}</p>
+            
+            <!-- Tafsir Button -->
+            <div class="mt-4 flex justify-end">
+              <button class="tafsir-btn text-sm flex items-center text-primary dark:text-primary-light hover:underline">
+                <span>${showTafsir ? 'Hide Tafsir' : 'Show Tafsir'}</span>
+                <i class="fas ${showTafsir ? 'fa-chevron-up' : 'fa-chevron-down'} ml-1"></i>
+              </button>
+            </div>
+            
+            <!-- Tafsir Content -->
+            ${showTafsir ? `
+              <div class="mt-3 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <h4 class="font-medium text-gray-800 dark:text-gray-200 mb-2">Tafsir & Commentary</h4>
+                ${!tafsirText ? `
+                  <div class="flex items-center justify-center py-4">
+                    <div class="h-6 w-6 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ` : `
+                  <p class="text-gray-600 dark:text-gray-200 text-sm leading-relaxed">${tafsirText}</p>
+                `}
+              </div>
+            ` : ''}
+          </div>
+        `;
+        
+        // Add event listeners
+        verseElement.querySelector('.bookmark-btn').addEventListener('click', () => {
+          toggleBookmark(verse.number);
+        });
+        
+        verseElement.querySelector('.audio-btn').addEventListener('click', () => {
+          if (isPlaying) {
+            pauseAudio();
+          } else {
+            playAudio(verse);
+          }
+        });
+        
+        verseElement.querySelector('.share-btn').addEventListener('click', () => {
+          shareVerse(verse);
+        });
+        
+        verseElement.querySelector('.tafsir-btn').addEventListener('click', () => {
+          toggleTafsir(verse.meta.surah, verse.number);
+        });
+        
+        verseList.appendChild(verseElement);
+      });
+      
+      verseList.classList.remove('hidden');
+    }
+
+    function renderSearchResults(query) {
+      searchResults.innerHTML = '';
+      
+      if (state.searchResults.length === 0) {
+        searchResults.innerHTML = `
+          <div class="text-center py-8 text-gray-500 dark:text-gray-300">
+            <i class="fas fa-search text-4xl opacity-30 mb-3"></i>
+            <p>No results found for "${query}"</p>
+            <p class="mt-2 text-sm">Try different keywords or check your spelling</p>
+          </div>
+        `;
+        return;
+      }
+      
+      state.searchResults.forEach(result => {
+        const resultElement = document.createElement('div');
+        resultElement.className = 'border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700';
+        
+        // Function to highlight search terms
+        const highlightSearchTerm = (text, term) => {
+          if (!term) return text;
+          
+          const regex = new RegExp(`(${term})`, 'gi');
+          return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-700 px-1 rounded">$1</mark>');
+        };
+        
+        resultElement.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <span class="text-primary dark:text-primary-light font-medium">
+                Surah ${result.surah.englishName} (${result.surah.number})
+              </span>
+              <span class="mx-2 text-gray-400">•</span>
+              <span class="text-gray-600 dark:text-gray-300">
+                Verse ${result.numberInSurah}
+              </span>
+            </div>
+            <button class="go-to-surah text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary-light flex items-center text-sm">
+              <span>Go to surah</span>
+              <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+          
+          <div class="text-gray-700 dark:text-gray-200">
+            ${highlightSearchTerm(result.text, query)}
+          </div>
+        `;
+        
+        resultElement.querySelector('.go-to-surah').addEventListener('click', () => {
+          navigateToSurah(result.surah.number);
+        });
+        
+        searchResults.appendChild(resultElement);
+      });
+    }
+
+    function renderBookmarks() {
+      bookmarksContent.innerHTML = '';
+      bookmarksCount.textContent = `Your Bookmarked Verses (${state.bookmarks.length})`;
+      
+      if (state.bookmarks.length === 0) {
+        bookmarksContent.innerHTML = `
+          <div class="text-center py-8 text-gray-500 dark:text-gray-300">
+            <i class="fas fa-bookmark text-4xl opacity-30 mb-3"></i>
+            <p>You don't have any bookmarks yet.</p>
+            <p class="mt-2 text-sm">Add bookmarks while reading the Quran to save verses.</p>
+            <button id="start-reading" class="mt-4 bg-primary text-white hover:bg-primary-dark px-4 py-2 rounded-lg">
+              Start Reading
+            </button>
+          </div>
+        `;
+        
+        document.getElementById('start-reading').addEventListener('click', () => {
+          window.location.hash = '';
+          showView('main');
+        });
+        
+        return;
+      }
+      
+      // Sort bookmarks by timestamp (newest first)
+      const sortedBookmarks = [...state.bookmarks].sort((a, b) => {
+        return new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime();
+      });
+      
+      sortedBookmarks.forEach((bookmark, index) => {
+        const surah = state.surahs.find(s => s.number === bookmark.surah) || { 
+          englishName: `Surah ${bookmark.surah}`,
+          number: bookmark.surah
+        };
+        
+        const bookmarkElement = document.createElement('div');
+        
+        if (index > 0) {
+          bookmarkElement.innerHTML = `<hr class="my-2 border-gray-200 dark:border-gray-700">`;
+        }
+        
+        const bookmarkContent = document.createElement('div');
+        bookmarkContent.className = 'flex justify-between items-center my-2';
+        bookmarkContent.innerHTML = `
+          <div>
+            <h3 class="font-medium text-primary dark:text-primary-light">
+              Surah ${surah.englishName}
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-300">
+              Verse ${bookmark.verse} • Bookmarked ${bookmark.timestamp ? formatDate(bookmark.timestamp) : ''}
+            </p>
+          </div>
+          <div class="flex space-x-2">
+            <button class="view-btn px-3 py-1 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+              View
+            </button>
+            <button class="remove-btn p-1 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        `;
+        
+        bookmarkContent.querySelector('.view-btn').addEventListener('click', () => {
+          navigateToSurah(bookmark.surah);
+        });
+        
+        bookmarkContent.querySelector('.remove-btn').addEventListener('click', () => {
+          toggleBookmark(bookmark.verse, bookmark.surah);
+        });
+        
+        bookmarkElement.appendChild(bookmarkContent);
+        bookmarksContent.appendChild(bookmarkElement);
+      });
+    }
+
+    // Helper function for date formatting
+    function formatDate(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+
+    // Initialize Application
+    function initApp() {
+      // Apply dark mode
+      setDarkMode(state.darkMode);
+      
+      // Show intro screen or main app
+      if (state.introShown) {
+        introScreen.classList.add('hidden');
+        header.classList.remove('hidden');
+        
+        // Check for hash in URL
+        if (window.location.hash === '#bookmarks') {
+          showView('bookmarks');
+          renderBookmarks();
+        } else {
+          showView('main');
+          
+          // Initialize with last read or default to first surah
+          if (state.lastRead?.surah) {
+            navigateToSurah(state.lastRead.surah);
+          } else {
+            navigateToSurah(1);
+          }
+        }
+      }
+      
+      // Initialize surahs
+      fetchSurahs();
+      
+      // Update last read buttons
+      updateLastReadButtons();
+      
+      // Add event listener to document to enable audio on iOS
+      document.addEventListener('click', () => {
+        // This helps with iOS and other browsers that require user interaction to play audio
+        if (mainAudioPlayer.paused) {
+          mainAudioPlayer.load();
+        }
+      }, { once: true });
+    }
+
+    // Event Listeners
+    continueBtn.addEventListener('click', () => {
+      state.introShown = true;
+      localStorage.setItem('introShown', 'true');
+      introScreen.classList.add('hidden');
+      header.classList.remove('hidden');
+      showView('main');
+      navigateToSurah(1);
+    });
+
+    darkModeToggle.addEventListener('click', () => {
+      setDarkMode(!state.darkMode);
+    });
+
+    sidebarToggle.addEventListener('click', () => {
+      mobileSidebar.classList.remove('hidden');
+    });
+
+    closeSidebar.addEventListener('click', () => {
+      mobileSidebar.classList.add('hidden');
+    });
+
+    sidebarBackdrop.addEventListener('click', () => {
+      mobileSidebar.classList.add('hidden');
+    });
+
+    surahDropdownToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      surahDropdown.classList.toggle('hidden');
+      
+      // Position the dropdown
+      if (!surahDropdown.classList.contains('hidden')) {
+        const rect = surahDropdownToggle.getBoundingClientRect();
+        surahDropdown.style.top = `${rect.bottom + window.scrollY}px`;
+        surahDropdown.style.left = `${rect.left + window.scrollX}px`;
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!surahDropdown.classList.contains('hidden') && 
+          !surahDropdownToggle.contains(e.target) && 
+          !surahDropdown.contains(e.target)) {
+        surahDropdown.classList.add('hidden');
+      }
+    });
+
+    searchToggle.addEventListener('click', () => {
+      if (window.location.hash === '#bookmarks') {
+        window.location.hash = '';
+      }
+      
+      if (!searchInterface.classList.contains('hidden')) {
+        showView('main');
+      } else {
+        showView('search');
+        searchInput.focus();
+      }
+    });
+
+    mobileSearch.addEventListener('click', () => {
+      mobileSidebar.classList.add('hidden');
+      window.location.hash = '';
+      showView('search');
+      searchInput.focus();
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        searchQuran(searchInput.value);
+      }
+    });
+
+    searchButton.addEventListener('click', () => {
+      searchQuran(searchInput.value);
+    });
+
+    surahSearch.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      updateSurahDropdown();
+    });
+
+    mobileSurahSearch.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value;
+      updateSurahDropdown();
+    });
+
+    surahSelect.addEventListener('change', () => {
+      navigateToSurah(parseInt(surahSelect.value));
+    });
+
+    prevSurahBtn.addEventListener('click', () => {
+      if (state.currentSurah > 1) {
+        navigateToSurah(state.currentSurah - 1);
+      }
+    });
+
+    nextSurahBtn.addEventListener('click', () => {
+      if (state.currentSurah < 114) {
+        navigateToSurah(state.currentSurah + 1);
+      }
+    });
+
+    lastReadBtn.addEventListener('click', () => {
+      if (state.lastRead?.surah) {
+        navigateToSurah(state.lastRead.surah);
+      }
+    });
+
+    mobileLastReadBtn.addEventListener('click', () => {
+      if (state.lastRead?.surah) {
+        navigateToSurah(state.lastRead.surah);
+        mobileSidebar.classList.add('hidden');
+      }
+    });
+
+    backToHomeBtn.addEventListener('click', () => {
+      window.location.hash = '';
+      showView('main');
+    });
+
+    // Handle hash change
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#bookmarks') {
+        showView('bookmarks');
+        renderBookmarks();
+      } else {
+        showView('main');
+      }
+    });
+
+    // Init app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+<footer class="bg-gray-100 dark:bg-gray-900 text-center text-gray-600 dark:text-gray-300 py-4 text-sm border-t border-gray-200 dark:border-gray-700">
+  Web design by <strong>Ibrahim Muhammad Ganako Jr</strong>
+</footer>
+
+</body>
+</html>
